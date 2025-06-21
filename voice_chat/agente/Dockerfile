@@ -6,6 +6,6 @@ COPY agent.py /app/
 COPY jsoncred.json /app/
 COPY .env /app/
 
-RUN pip install --no-cache-dir livekit openai google-api-python-client google-auth python-dotenv
+RUN pip install --no-cache-dir -r requirements.txt
 
 CMD ["python", "realtime_crazy.py"]
