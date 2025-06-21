@@ -21,7 +21,7 @@
       color: #00ffe0;
     }
 
-    input, button {
+    button {
       padding: 12px;
       border-radius: 8px;
       border: none;
@@ -29,15 +29,6 @@
       font-size: 16px;
       width: 100%;
       max-width: 600px;
-      box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
-    }
-
-    input {
-      background-color: #1e1e1e;
-      color: #fff;
-    }
-
-    button {
       background-color: #00ffe0;
       color: #000;
       font-weight: bold;
@@ -67,8 +58,7 @@
 </head>
 <body>
   <h2>🛰️ AI CallCenter</h2>
-  <input id="tokenInput" placeholder="Pegá tu token JWT" />
-  <button onclick="start()">🎙️ Conectar y hablar</button>
+  <button onclick="getTokenAndStart()">🎙️ Conectar y hablar</button>
   <div id="log">Logs 👇</div>
 
   <script>
@@ -78,13 +68,21 @@
       logEl.scrollTop = logEl.scrollHeight;
     }
 
-    async function start() {
-      const token = document.getElementById("tokenInput").value.trim();
-      if (!token) return log("❌ Token vacío");
+    async function getTokenAndStart() {
+      const username = "tulo"; // podés cambiarlo por lo que quieras
+      try {
+        const res = await fetch(`http://localhost:8000/get_token/${username}`);
+        const data = await res.json();
+        if (!data.token) throw new Error("No se recibió token");
+        start(data.token);
+      } catch (e) {
+        log("❌ Error al obtener el token: " + e.message);
+      }
+    }
 
+    async function start(token) {
       try {
         const room = new LivekitClient.Room();
-        //await room.connect("ws://localhost:7880", token);
         await room.connect("wss://dantu-87bgo2kc.livekit.cloud", token);
 
         const audioTrack = await LivekitClient.createLocalAudioTrack();

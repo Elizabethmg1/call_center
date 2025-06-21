@@ -8,11 +8,14 @@ from openai import OpenAI
 import json
 import glob
 from dbn2 import PostgreSQL
+from dotenv import load_dotenv
 
 from datetime import datetime
 from zoneinfo import ZoneInfo
+load_dotenv()
+
 # Conexión inicial a Google Calendar (idéntica)
-api_key = None
+api_key = os.getenv("OPENAI_API_KEY", "devkey")
 client = OpenAI(api_key=api_key)
 
 registrar_turno_tool_descripcion = """
