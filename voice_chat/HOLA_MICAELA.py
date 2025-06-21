@@ -1,1 +1,0 @@
-'aguante mica wacho'
