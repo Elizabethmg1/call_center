@@ -12,7 +12,7 @@ from dbn2 import PostgreSQL
 from datetime import datetime
 from zoneinfo import ZoneInfo
 # Conexión inicial a Google Calendar (idéntica)
-api_key = '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'
+api_key = None
 client = OpenAI(api_key=api_key)
 
 registrar_turno_tool_descripcion = """
