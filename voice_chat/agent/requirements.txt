@@ -1,6 +1,0 @@
-livekit
-livekit-agents
-openai
-google-api-python-client
-google-auth
-python-dotenv
