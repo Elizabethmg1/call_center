@@ -1,25 +1,20 @@
-# docker-compose.yml
-version: '3.9'
+version: "3.9"
 
 services:
-  web:
-    build:
-      context: .
-      dockerfile: web/Dockerfile
+  call_center-web:
+    build: ./web
     ports:
-      - "${PORT_WEB}:8000"
+      - "${PORT_WEB}:${PORT_WEB}"
     env_file:
       - .env
     volumes:
-      - .:/app
+      - ./jsoncred.json:/app/jsoncred.json
 
-  agent:
-    build:
-      context: .
-      dockerfile: voice_chat/agent/Dockerfile
+  call_center-agent:
+    build: ./voice_chat/agent
     ports:
-      - "${PORT_AGENT}:8081"
+      - "${PORT_AGENT}:${PORT_AGENT}"
     env_file:
       - .env
     volumes:
-      - .:/app
+      - ./jsoncred.json:/app/jsoncred.json
