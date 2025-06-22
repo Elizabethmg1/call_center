@@ -11,7 +11,7 @@ services:
       - ./jsoncred.json:/app/jsoncred.json
 
   call_center-agent:
-    build: ./voice_chat/agent
+    build: ./agent
     ports:
       - "${PORT_AGENT}:${PORT_AGENT}"
     env_file:
