@@ -18,3 +18,5 @@ services:
       - .env
     volumes:
       - ./jsoncred.json:/app/jsoncred.json
+    enviroment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
