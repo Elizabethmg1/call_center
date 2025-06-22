@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Call Center</title>
+  <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h2 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: #00ffe0;
+    }
+
+    button {
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      margin: 8px 0;
+      font-size: 16px;
+      width: 100%;
+      max-width: 600px;
+      background-color: #00ffe0;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #00c4b4;
+    }
+
+    #log {
+      white-space: pre-wrap;
+      background: #1e1e1e;
+      padding: 16px;
+      margin-top: 20px;
+      height: 300px;
+      width: 100%;
+      max-width: 600px;
+      overflow-y: auto;
+      border-radius: 8px;
+      box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.1);
+      font-family: monospace;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h2>🛰️ AI CallCenter</h2>
+  <button onclick="getTokenAndStart()">🎙️ Conectar y hablar</button>
+  <div id="log">Logs 👇</div>
+
+  <script>
+    const logEl = document.getElementById("log");
+
+    function log(msg) {
+      const timestamp = new Date().toLocaleTimeString();
+      logEl.textContent += `[${timestamp}] ${msg}\n`;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    async function getTokenAndStart() {
+      const username = "tulo";
+      try {
+        log("🛰️ Solicitando token...");
+        const res = await fetch(`http://localhost:8000/get_token/${username}`);
+        const data = await res.json();
+        if (!data.token) throw new Error("No se recibió token");
+        log("✅ Token recibido");
+        start(data.token);
+      } catch (e) {
+        log("❌ Error al obtener el token: " + e.message);
+      }
+    }
+
+    async function start(token) {
+      try {
+        const room = new LivekitClient.Room();
+        log("📡 Sala creada. Intentando conectar...");
+
+        room.on(LivekitClient.RoomEvent.ParticipantConnected, (p) => {
+          log(`👤 Participante conectado: ${p.identity}`);
+        });
+
+        room.on(LivekitClient.RoomEvent.TrackPublished, (pub, p) => {
+          log(`📢 ${p.identity} publicó pista: ${pub.kind}`);
+        });
+
+        room.on(LivekitClient.RoomEvent.TrackSubscribed, (track, pub, p) => {
+          log(`🔊 Subscrito a pista de ${p.identity}`);
+          if (track.kind === "audio") {
+            const el = track.attach();
+            document.body.appendChild(el);
+            el.play().catch(e => log("⚠️ Error al reproducir audio: " + e));
+          }
+        });
+
+        room.on(LivekitClient.RoomEvent.Disconnected, () => {
+          log("🔌 Desconectado de la sala");
+        });
+
+        await room.connect("wss://dantu-87bgo2kc.livekit.cloud", token);
+        log("✅ Conectado al servidor LiveKit");
+
+        const audioTrack = await LivekitClient.createLocalAudioTrack();
+        log("🎙️ Pista de audio local creada");
+
+        await room.localParticipant.publishTrack(audioTrack);
+        log("📤 Pista de micrófono publicada en la sala");
+
+        log(`🧩 Participante local: ${room.localParticipant.identity}`);
+
+      } catch (e) {
+        log("❌ Error en start(): " + e.message);
+      }
+    }
+  </script>
+</body>
+</html> 
+
